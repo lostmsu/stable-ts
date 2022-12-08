@@ -31,6 +31,29 @@ def to_srt(lines: List[dict], save_path: str = None, strip=False) -> str:
 
     return srt_str
 
+def to_lrc(lines: List[dict], save_path: str = None, strip=False) -> str:
+    """
+    lines: List[dict]
+        [{start:<start-timestamp-of-text>, end:<end-timestamp-of-text>, text:<str-of-text>}, ...]
+    """
+
+    def secs_to_hhmmss(secs: (float, int)):
+        mm, ss = divmod(secs, 60)
+        hh, mm = divmod(mm, 60)
+        return f'{mm:0>2.0f}:{ss:0>5.2f}'
+
+    lrc_str = '\n'.join(
+        f'[{secs_to_hhmmss(sub["start"])}]'
+        f'{sub["text"].strip() if strip else sub["text"]}'
+        for i, sub in enumerate(lines, 1))
+
+    if save_path:
+        with open(save_path, 'w', encoding='utf-8') as f:
+            f.write(lrc_str)
+        print(f'Saved: {os.path.abspath(save_path)}')
+
+    return lrc_str
+
 
 def results_to_srt(res: dict, srt_path, word_level=True, combine_compound=False,
                    end_at_last_word=False, end_before_period=False, start_at_first_word=False, strip=False):
